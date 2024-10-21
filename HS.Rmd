@@ -1,0 +1,116 @@
+---
+title: "Untitled"
+author: "Patrick Marino"
+date: "2024-10-18"
+output: html_document
+---
+
+```{r}
+library(jsonlite)
+
+hate<- fromJSON("C:\\Users\\pjm11\\Downloads\\dataset.json")
+View(hate)
+str(hate)
+summary(hate)
+
+filteredHate <- list()
+ for (obs_name in names(hate)) {
+   observation <- hate[[obs_name]]
+   
+   annotators <- observation$annotators
+   
+   if (!is.null(annotators)) {
+     if (any(sapply(annotators$target, function(x) "Islam" %in% x))) {
+       
+       filteredHate[[obs_name]] <- observation
+     }
+   }
+ }
+
+filteredHate
+
+all_tokens <- c()
+
+for (obs_name in names(filteredHate)) {
+  observation <- filteredHate[[obs_name]]
+  
+  all_tokens <- c(all_tokens, observation$post_tokens) 
+  
+}
+
+token_freq <- table(all_tokens)
+
+sortedT<- sort(token_freq, decreasing = TRUE)
+
+print(head(sortedT, 100))
+
+```
+
+
+```{r}
+filtered_hatespeech <- list()
+
+for (obs_name in names(filteredHate)) {
+  observation <- filteredHate[[obs_name]]
+  
+  labels <- observation$annotators$label
+  
+  if (all(labels == "hatespeech")) {
+    filtered_hatespeech[[obs_name]] <- observation
+  }
+}
+
+length(filtered_hatespeech)
+
+
+```
+```{r}
+all_tokens <- c()
+
+for (obs_name in names(filtered_hatespeech)) {
+  observation <- filtered_hatespeech[[obs_name]]
+  
+  all_tokens <- c(all_tokens, observation$post_tokens) 
+  
+}
+
+token_freq <- table(all_tokens)
+
+sortedT<- sort(token_freq, decreasing = TRUE)
+
+print(head(sortedT, 100))
+```
+
+
+```{r}
+second_100<- sortedT[101:200]
+
+ off_terms <- c("mudslime", "muslime", "raghead", "terrorist", "muzrat", "moslems", "muzzie")
+
+offensive_tokens <- sortedT[names(sortedT) %in% off_terms] 
+
+
+```
+
+```{r}
+offensive_df <- as.data.frame(as.table(offensive_tokens))
+
+colnames(offensive_df) <- c("Term", "Frequency")
+
+
+ggplot(offensive_df, aes(x = reorder(Term, Frequency), y = Frequency))+
+  geom_bar(stat = "identity", fill = "red") +
+  coord_flip() +
+  labs(title = "Offensive Tokens", x = "Term", y = "Frequency") +
+  theme_minimal()
+
+str(offensive_df)
+```
+
+
+
+```{r}
+HS<- read.csv("C:\\Users\\pjm11\\Downloads\\CONAN.csv")
+View(HS)
+```
+
