@@ -1,2 +1,2 @@
 # Islamophobia-Lexicon
-This is a raspatory for a research project on Islamophobic hate speech.
+This is a repository for a research project on Islamophobic hate speech.
